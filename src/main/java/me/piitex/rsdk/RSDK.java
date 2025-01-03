@@ -4,7 +4,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import me.piitex.engine.Container;
 import me.piitex.engine.Window;
-import me.piitex.rsdk.gui.ConsoleMenu;
 import me.piitex.rsdk.gui.InitialMenu;
 
 import java.io.File;
@@ -22,6 +21,7 @@ public class RSDK {
 
     public RSDK() {
         window = new Window("RSDK GUI", StageStyle.DECORATED, null, 1200, 900);
+        window.getStage().setResizable(false);
         Container initial = new InitialMenu(this).build();
         window.updateBackground(Color.WHITE);
         window.addContainer(initial);
