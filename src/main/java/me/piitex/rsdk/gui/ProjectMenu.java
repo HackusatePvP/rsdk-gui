@@ -84,7 +84,6 @@ public class ProjectMenu {
             if (rsdk.getArtifact().contains(" ")) {
                 // ERROR It has a space
                 System.out.println("Artifact has space:" + rsdk.getArtifact());
-
                 error = new TextOverlay("Project name cannot contain spaces.");
             } else if (rsdk.getGroupID().contains(" ")) {
                 error = new TextOverlay("Group ID/Packaging cannot contain spaces.");
@@ -113,8 +112,14 @@ public class ProjectMenu {
                 error.setTextFill(Color.RED);
                 error.setX(400);
                 error.setY(700);
+                System.out.println("Overlay size: " + container.getOverlaySize());
+                if (container.getOverlaySize() > 2) {
+                    container.removeOverlay(container.getOverlays().getLast());
+                }
 
                 rsdk.getWindow().getContainers().getFirst().addOverlays(error);
+
+                rsdk.getWindow().render();
             }
         });
         next.setFont(buttonFont);
