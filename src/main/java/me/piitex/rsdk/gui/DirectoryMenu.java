@@ -52,30 +52,42 @@ public class DirectoryMenu {
                 }
                 rsdk.setDirectory(file);
             }
+
+            ButtonOverlay next = new ButtonOverlay("next-3", "Next", Color.LIMEGREEN);
+            next.onClick(event1 -> {
+                // Start console runner
+                ConsoleMenu consoleMenu = new ConsoleMenu();
+                Container c = consoleMenu.build();
+                rsdk.getWindow().clearContainers();
+                rsdk.getWindow().addContainer(c);
+                rsdk.getWindow().updateBackground(Color.WHITE);
+                rsdk.getWindow().render();
+
+                new Runner(consoleMenu.getLayout(), rsdk, rsdk.getDirectory());
+            });
+            next.setFont(buttonFont);
+            next.setFont(buttonFont);
+            next.setX(1000);
+            next.setY(800);
+
+            TextOverlay textOverlay = new TextOverlay(event.getDirectory().getAbsolutePath(), Color.LIMEGREEN, textFont);
+            textOverlay.setX(200);
+            textOverlay.setY(250);
+            System.out.println("Size: " + container.getOverlaySize());
+            if (container.getOverlaySize() > 5) {
+                container.removeOverlay(container.getOverlays().getLast());
+                container.removeOverlay(container.getOverlays().get(container.getOverlays().size() - 2));
+            }
+
+            container.addOverlays(next);
+            container.addOverlays(textOverlay);
+
+            rsdk.getWindow().render();
         });
 
         directoryBox.addOverlay(dir);
 
         container.addLayout(directoryBox);
-
-        ButtonOverlay next = new ButtonOverlay("next-3", "Next", Color.LIMEGREEN);
-        next.onClick(event -> {
-            // Start console runner
-            ConsoleMenu consoleMenu = new ConsoleMenu();
-            Container c = consoleMenu.build();
-            rsdk.getWindow().clearContainers();
-            rsdk.getWindow().addContainer(c);
-            rsdk.getWindow().updateBackground(Color.WHITE);
-            rsdk.getWindow().render();
-
-            new Runner(consoleMenu.getLayout(), rsdk, rsdk.getDirectory());
-        });
-        next.setFont(buttonFont);
-        next.setFont(buttonFont);
-        next.setX(1000);
-        next.setY(800);
-
-        container.addOverlays(next);
 
         ButtonOverlay back = new ButtonOverlay("back-2", "Back", Color.LIMEGREEN);
         back.onClick(event -> {
