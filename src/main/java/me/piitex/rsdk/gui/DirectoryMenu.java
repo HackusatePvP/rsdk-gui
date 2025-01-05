@@ -45,44 +45,51 @@ public class DirectoryMenu {
         dir.onDirectorySelect(event -> {
             File file = event.getDirectory();
             if (file.listFiles() != null && file.listFiles().length > 0) {
-                System.out.println("ERROR: Could not set directory!!!");
+                TextOverlay error = new TextOverlay("Directory is not EMPTY!!!", Color.RED, textFont);
+                error.setX(200);
+                error.setY(250);
+
+                container.addOverlay(error);
+
+                rsdk.getWindow().render();
             } else {
                 if (!file.exists())  {
                     file.mkdir();
                 }
                 rsdk.setDirectory(file);
-            }
 
-            ButtonOverlay next = new ButtonOverlay("next-3", "Next", Color.LIMEGREEN);
-            next.onClick(event1 -> {
-                // Start console runner
-                ConsoleMenu consoleMenu = new ConsoleMenu();
-                Container c = consoleMenu.build();
-                rsdk.getWindow().clearContainers();
-                rsdk.getWindow().addContainer(c);
-                rsdk.getWindow().updateBackground(Color.WHITE);
+                ButtonOverlay next = new ButtonOverlay("next-3", "Next", Color.LIMEGREEN);
+                next.onClick(event1 -> {
+                    // Start console runner
+                    ConsoleMenu consoleMenu = new ConsoleMenu();
+                    Container c = consoleMenu.build();
+                    rsdk.getWindow().clearContainers();
+                    rsdk.getWindow().addContainer(c);
+                    rsdk.getWindow().updateBackground(Color.WHITE);
+                    rsdk.getWindow().render();
+
+                    rsdk.setConsole(consoleMenu.getLayout());
+
+                    new Runner(consoleMenu.getLayout(), rsdk, rsdk.getDirectory());
+                });
+                next.setFont(buttonFont);
+                next.setFont(buttonFont);
+                next.setX(1000);
+                next.setY(800);
+
+                TextOverlay textOverlay = new TextOverlay(event.getDirectory().getAbsolutePath(), Color.LIMEGREEN, textFont);
+                textOverlay.setX(200);
+                textOverlay.setY(250);
+                System.out.println("Size: " + container.getOverlaySize());
+                if (container.getOverlaySize() > 4) {
+                    container.removeOverlay(container.getOverlays().getLast());
+                }
+
+                container.addOverlays(next);
+                container.addOverlays(textOverlay);
+
                 rsdk.getWindow().render();
-
-                new Runner(consoleMenu.getLayout(), rsdk, rsdk.getDirectory());
-            });
-            next.setFont(buttonFont);
-            next.setFont(buttonFont);
-            next.setX(1000);
-            next.setY(800);
-
-            TextOverlay textOverlay = new TextOverlay(event.getDirectory().getAbsolutePath(), Color.LIMEGREEN, textFont);
-            textOverlay.setX(200);
-            textOverlay.setY(250);
-            System.out.println("Size: " + container.getOverlaySize());
-            if (container.getOverlaySize() > 5) {
-                container.removeOverlay(container.getOverlays().getLast());
-                container.removeOverlay(container.getOverlays().get(container.getOverlays().size() - 2));
             }
-
-            container.addOverlays(next);
-            container.addOverlays(textOverlay);
-
-            rsdk.getWindow().render();
         });
 
         directoryBox.addOverlay(dir);
@@ -106,6 +113,8 @@ public class DirectoryMenu {
         back.setFont(buttonFont);
         back.setX(100);
         back.setY(800);
+
+        container.addOverlay(back);
 
         return container;
     }
