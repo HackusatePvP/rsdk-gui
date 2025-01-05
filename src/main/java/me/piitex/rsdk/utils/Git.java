@@ -31,6 +31,10 @@ public class Git {
 		runCommand(directory.getParent(), "git", "clone", originUrl, directory.getFileName().toString());
 	}
 
+	public static void gitCloneBranch(String branch, Path directory, String originUrl) throws IOException, InterruptedException {
+		runCommand(directory.getParent(), "git", "clone", "--branch", branch, originUrl, directory.getFileName().toString());
+	}
+
 	public static void runCommand(Path directory, String... command) throws IOException, InterruptedException {
 		Objects.requireNonNull(directory, "directory");
 		if (!Files.exists(directory)) {
