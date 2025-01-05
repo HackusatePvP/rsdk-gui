@@ -84,6 +84,25 @@ public class ColorMenu {
 
         ButtonOverlay next = new ButtonOverlay("next-2", "Next", Color.LIMEGREEN);
         next.onClick(event -> {
+
+            if (rsdk.getTheme().equalsIgnoreCase("white")) {
+
+                if (container.getOverlaySize() > 3) {
+                    container.removeOverlay(container.getOverlays().getLast());
+                }
+
+                TextOverlay error = new TextOverlay("White is not supported.", Color.RED, textFont);
+                error.setX(400);
+                error.setY(700);
+
+                System.out.println("Overlay Size: " + container.getOverlaySize());
+
+                container.addOverlay(error);
+
+                rsdk.getWindow().render();
+                return;
+            }
+
             Container c = new DirectoryMenu(rsdk).build();
             rsdk.getWindow().clearContainers();
             rsdk.getWindow().addContainer(c);
@@ -98,16 +117,12 @@ public class ColorMenu {
 
         ButtonOverlay back = new ButtonOverlay("back-2", "Back", Color.LIMEGREEN);
         back.onClick(event -> {
-            // Reset values
-            rsdk.setArtifact("");
-            rsdk.setGroupID("");
-            rsdk.setVersion("");
-            rsdk.setTheme("");
+            rsdk.setRelease("");
             rsdk.setColor("");
-
+            rsdk.setTheme("");
             rsdk.getWindow().clearContainers();
 
-            Container c = new ProjectMenu(rsdk).build();
+            Container c = new RenJavaMenu(rsdk).build();
             rsdk.getWindow().addContainer(c);
             rsdk.getWindow().render();
         });
