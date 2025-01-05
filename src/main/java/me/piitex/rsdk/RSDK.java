@@ -4,6 +4,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import me.piitex.engine.Container;
 import me.piitex.engine.Window;
+import me.piitex.engine.layouts.VerticalLayout;
 import me.piitex.rsdk.gui.InitialMenu;
 
 import java.io.File;
@@ -13,13 +14,19 @@ public class RSDK {
     private String artifact;
     private String groupID;
     private String version;
+    private String release;
     private String theme;
     private String color;
     private File directory;
 
     private Window window;
 
+    private VerticalLayout console;
+    public static RSDK rsdk;
+
     public RSDK() {
+        rsdk = this;
+
         window = new Window("RSDK GUI", StageStyle.DECORATED, null, 1200, 900);
         window.getStage().setResizable(false);
         Container initial = new InitialMenu(this).build();
@@ -78,5 +85,30 @@ public class RSDK {
 
     public void setDirectory(File directory) {
         this.directory = directory;
+    }
+
+    public void reset() {
+        artifact = "";
+        groupID = "";
+        version = "";
+        theme = "";
+        color = "";
+        directory = null;
+    }
+
+    public VerticalLayout getConsole() {
+        return console;
+    }
+
+    public void setConsole(VerticalLayout console) {
+        this.console = console;
+    }
+
+    public String getRelease() {
+        return release;
+    }
+
+    public void setRelease(String release) {
+        this.release = release;
     }
 }

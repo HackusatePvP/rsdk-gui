@@ -1,11 +1,12 @@
 package me.piitex.rsdk;
 
-import javafx.application.Platform;
 import javafx.scene.paint.Color;
+import me.piitex.engine.Container;
 import me.piitex.engine.layouts.VerticalLayout;
 import me.piitex.engine.loaders.FontLoader;
 import me.piitex.engine.overlays.ButtonOverlay;
 import me.piitex.engine.overlays.TextOverlay;
+import me.piitex.rsdk.gui.InitialMenu;
 import me.piitex.rsdk.utils.Git;
 import me.piitex.rsdk.utils.ResourceUtil;
 import me.piitex.rsdk.utils.Tasks;
@@ -24,6 +25,8 @@ public class Runner {
     private final File directory;
     private final FontLoader conFont = new FontLoader("Roboto-Regular.ttf", 12);
 
+    private final String os = System.getProperty("os.name");
+
     public Runner(VerticalLayout console, RSDK rsdk, File directory) {
         this.console = console;
         this.rsdk = rsdk;
@@ -34,13 +37,19 @@ public class Runner {
 
     public void extractTemplate() {
         System.out.println("Extracting RenJava starting template...");
-
+        System.out.println("OS: " + os);
         // Input to Console
         Tasks.runJavaFXThread(() -> {
+            TextOverlay osName = new TextOverlay("OS: " + os);
+            osName.setFont(conFont);
+            osName.setX(-200);
+            console.addOverlay(osName);
+
             TextOverlay update = new TextOverlay("Extracting template to " + rsdk.getDirectory().getAbsolutePath() + "...");
             update.setX(-200);
             update.setFont(conFont);
             console.addOverlay(update);
+
             rsdk.getWindow().render();
         });
 
@@ -123,7 +132,7 @@ public class Runner {
 
             // Input to Console
             Tasks.runJavaFXThread(() -> {
-                TextOverlay update = new TextOverlay("Cloning RenJava...");
+                TextOverlay update = new TextOverlay("Cloning RenJava. Using '" + rsdk.getRelease() + "' branch.");
                 update.setX(-200);
                 update.setFont(conFont);
                 console.addOverlay(update);
@@ -157,7 +166,7 @@ public class Runner {
         renDir.mkdir();
 
         try {
-            Git.gitClone(renDir.toPath(), "https://github.com/HackusatePvP/RenJava");
+            Git.gitCloneBranch(rsdk.getRelease(), renDir.toPath(), "https://github.com/HackusatePvP/RenJava/");
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -243,7 +252,13 @@ public class Runner {
             rsdk.getWindow().render();
         });
 
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "mvnw clean install");
+        ProcessBuilder builder;
+        if (os.toLowerCase().contains("window")) {
+            builder = new ProcessBuilder("cmd.exe", "/c", "mvnw clean install");
+        } else {
+            // Assume linux???
+            builder = new ProcessBuilder("/bin/bash", "-c", "mvnw clean install");
+        }
         builder.directory(renDir);
         builder.redirectErrorStream(true);
 
@@ -251,7 +266,6 @@ public class Runner {
         try {
             process = builder.start();
             String result = new String(process.getInputStream().readAllBytes());
-
             // Run mvnw
 //            Tasks.runJavaFXThread(() -> {
 //                TextOverlay update = new TextOverlay(result);
@@ -328,7 +342,13 @@ public class Runner {
             rsdk.getWindow().render();
         });
 
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "mvnw clean install");
+        ProcessBuilder builder;
+        if (os.toLowerCase().contains("window")) {
+            builder = new ProcessBuilder("cmd.exe", "/c", "mvnw clean install");
+        } else {
+            // Assume linux???
+            builder = new ProcessBuilder("/bin/bash", "-c", "mvnw clean install");
+        }
         builder.directory(directory);
         builder.redirectErrorStream(true);
         try {
@@ -551,14 +571,19 @@ public class Runner {
         }
 
         // Run application
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start.bat");
-        builder.directory(environment);
-        builder.redirectErrorStream(true);
+        if (os.toLowerCase().contains("window")) {
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start.bat");
+            builder.directory(environment);
+            builder.redirectErrorStream(true);
 
-        try {
-            builder.start();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            try {
+                builder.start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            // Assume linux???
+            // Not sure what to do with linux here...
         }
 
         // Add Done button
@@ -571,7 +596,15 @@ public class Runner {
 
             ButtonOverlay done = new ButtonOverlay("done", "Done", Color.LIMEGREEN);
             done.onClick(event -> {
-                Platform.exit();
+                Container c = new InitialMenu(rsdk).build();
+
+                rsdk.getWindow().clearContainers();
+
+                rsdk.getWindow().addContainer(c);
+
+                rsdk.reset();
+
+                rsdk.getWindow().render();
             });
             done.setFont(new FontLoader("Roboto-Black.ttf", 26));
             done.setX(750);

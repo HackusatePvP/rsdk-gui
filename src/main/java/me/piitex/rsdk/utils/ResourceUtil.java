@@ -1,5 +1,8 @@
 package me.piitex.rsdk.utils;
 
+import me.piitex.engine.loaders.FontLoader;
+import me.piitex.engine.overlays.TextOverlay;
+import me.piitex.rsdk.RSDK;
 import me.piitex.rsdk.Runner;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -48,6 +51,16 @@ public class ResourceUtil {
                         if (copyDir != null) {
                             FileUtils.copyFile(file, new File(copyDir, s));
                         }
+
+                        // Print extraction
+                        Tasks.runJavaFXThread(() -> {
+                            TextOverlay extract = new TextOverlay("Extracting " + file.getName() + " to " + file.getAbsolutePath(), new FontLoader("Roboto-Regular.ttf"));
+                            extract.setX(-200);
+
+                            RSDK.rsdk.getConsole().addOverlay(extract);
+
+                            RSDK.rsdk.getWindow().render();
+                        });
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -116,7 +129,7 @@ public class ResourceUtil {
      * @return the resources in the order they are found
      */
     public static Collection<String> getResources(final Pattern pattern) {
-        final ArrayList<String> retval = new ArrayList<String>();
+        final ArrayList<String> retval = new ArrayList<>();
         final String classPath = System.getProperty("java.class.path", ".");
         final String[] classPathElements = classPath.split(System.getProperty("path.separator"));
         for (final String element : classPathElements) {
@@ -126,7 +139,7 @@ public class ResourceUtil {
     }
 
     private static Collection<String> getResources(final String element, final Pattern pattern) {
-        final ArrayList<String> retval = new ArrayList<String>();
+        final ArrayList<String> retval = new ArrayList<>();
         final File file = new File(element);
         if (file.isDirectory()) {
             retval.addAll(getResourcesFromDirectory(file, pattern));
