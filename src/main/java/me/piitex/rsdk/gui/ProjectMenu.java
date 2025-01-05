@@ -101,7 +101,7 @@ public class ProjectMenu {
                 // Passed
                 error = null;
 
-                Container c = new ColorMenu(rsdk).build();
+                Container c = new RenJavaMenu(rsdk).build();
                 rsdk.getWindow().clearContainers();
                 rsdk.getWindow().addContainer(c);
                 rsdk.getWindow().render();
