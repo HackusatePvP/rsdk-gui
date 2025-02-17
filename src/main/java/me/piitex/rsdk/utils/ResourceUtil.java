@@ -55,7 +55,6 @@ public class ResourceUtil {
                         // Print extraction
                         Tasks.runJavaFXThread(() -> {
                             TextOverlay extract = new TextOverlay("Extracting " + file.getName() + " to " + file.getAbsolutePath(), new FontLoader("Roboto-Regular.ttf"));
-                            extract.setX(-200);
 
                             RSDK.rsdk.getConsole().addOverlay(extract);
 

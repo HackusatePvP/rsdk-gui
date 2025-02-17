@@ -24,7 +24,7 @@ public class ConsoleMenu {
 
         container.addOverlay(info);
 
-        layout = new VerticalLayout(500, 600);
+        layout = new VerticalLayout(900, 600);
         layout.setX(200);
         layout.setY(150);
         layout.setScroll(true);
