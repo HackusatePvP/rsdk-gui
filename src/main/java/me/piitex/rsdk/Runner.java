@@ -32,7 +32,59 @@ public class Runner {
         this.rsdk = rsdk;
         this.directory = directory;
 
+        verification();
+    }
+
+    public void verification() {
+        // Verify that both Java 21 and Git are installed!!!
+
+        try {
+            Process process = Runtime.getRuntime().exec("git --version");
+            process.waitFor();
+
+        } catch (IOException | InterruptedException e) {
+            Tasks.runJavaFXThread(() -> {
+                TextOverlay update = new TextOverlay("Git is not installed! Please download 'Git' to continue.");
+                update.setTextFill(Color.RED);
+                
+                update.setFont(conFont);
+                console.addOverlay(update);
+
+                rsdk.getWindow().render();
+            });
+            return;
+        }
+
+        // Check if Java is installed- Wait, how did someone have this issue? Don't you need Java to launch the program?...
+        // Like how did you get here without it??
+        // Next time I have to start interrogating people who report stuff
+        try {
+            Process process = Runtime.getRuntime().exec("java --version");
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            Tasks.runJavaFXThread(() -> {
+                TextOverlay update = new TextOverlay("Java is not installed! Please download Java 21 to continue.");
+                update.setTextFill(Color.RED);
+                update.setFont(conFont);
+                console.addOverlay(update);
+
+                rsdk.getWindow().render();
+            });
+
+            return;
+        }
+
+        Tasks.runJavaFXThread(() -> {
+            TextOverlay update = new TextOverlay("Git and java has been verified.");
+            
+            update.setFont(conFont);
+            console.addOverlay(update);
+
+            rsdk.getWindow().render();
+        });
+
         extractTemplate();
+
     }
 
     public void extractTemplate() {
@@ -42,11 +94,10 @@ public class Runner {
         Tasks.runJavaFXThread(() -> {
             TextOverlay osName = new TextOverlay("OS: " + os);
             osName.setFont(conFont);
-            osName.setX(-200);
             console.addOverlay(osName);
 
             TextOverlay update = new TextOverlay("Extracting template to " + rsdk.getDirectory().getAbsolutePath() + "...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
 
@@ -124,7 +175,7 @@ public class Runner {
             // Input to Console
             Tasks.runJavaFXThread(() -> {
                 TextOverlay update = new TextOverlay("Finished extraction");
-                update.setX(-200);
+                
                 update.setFont(conFont);
                 console.addOverlay(update);
                 rsdk.getWindow().render();
@@ -133,7 +184,7 @@ public class Runner {
             // Input to Console
             Tasks.runJavaFXThread(() -> {
                 TextOverlay update = new TextOverlay("Cloning RenJava. Using '" + rsdk.getRelease() + "' branch.");
-                update.setX(-200);
+                
                 update.setFont(conFont);
                 console.addOverlay(update);
                 rsdk.getWindow().render();
@@ -165,15 +216,52 @@ public class Runner {
         File renDir = new File(directory, "/RenJava/");
         renDir.mkdir();
 
+        int exit;
         try {
-            Git.gitCloneBranch(rsdk.getRelease(), renDir.toPath(), "https://github.com/HackusatePvP/RenJava/");
+            exit = Git.gitCloneBranch(rsdk.getRelease(), renDir.toPath(), "https://github.com/HackusatePvP/RenJava/");
+
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
-        Tasks.runJavaFXThread(() -> {
+        if (exit == 1) {
+            // Exit code 1 means system could not reach github.com
+            Tasks.runJavaFXThread(() -> {
+                TextOverlay update = new TextOverlay("ERROR: Could not connect to https://github.com/ The runner has stopped!");
+                update.setTextFill(Color.RED);
+
+                console.addOverlay(update);
+
+                // Add a red exit button!
+                ButtonOverlay exitButton = new ButtonOverlay("exit", "Exit", Color.RED);
+                exitButton.setX(750);
+                exitButton.setY(400);
+                exitButton.setFont(new FontLoader("Roboto-Black.ttf", 26));
+
+                exitButton.onClick(event -> {
+                    Container c = new InitialMenu(rsdk).build();
+
+                    rsdk.getWindow().clearContainers();
+
+                    rsdk.getWindow().addContainer(c);
+
+                    rsdk.reset();
+
+                    rsdk.getWindow().render();
+                });
+
+                Container c = rsdk.getWindow().getContainers().getFirst();
+                c.addOverlay(exitButton);
+
+                rsdk.getWindow().render();
+            });
+
+            return;
+        }
+
+            Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Finished clone! Extracting mvnw...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -246,7 +334,7 @@ public class Runner {
         // Run mvnw
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Running mvnw clean install...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -269,7 +357,7 @@ public class Runner {
             // Run mvnw
 //            Tasks.runJavaFXThread(() -> {
 //                TextOverlay update = new TextOverlay(result);
-//                update.setX(-200);
+//                
 //                update.setFont(conFont);
 //                console.addOverlay(update);
 //                rsdk.getWindow().render();
@@ -288,7 +376,7 @@ public class Runner {
     public void createEnvironment() {
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Creating development environment...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -313,7 +401,7 @@ public class Runner {
 
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Extracting gui...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -326,7 +414,7 @@ public class Runner {
 
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Extracting css...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -336,7 +424,7 @@ public class Runner {
 
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Creating project jar file...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -358,7 +446,7 @@ public class Runner {
 
             Tasks.runJavaFXThread(() -> {
                 TextOverlay update = new TextOverlay("Finished executing jar. Verifying target...");
-                update.setX(-200);
+                
                 update.setFont(conFont);
                 console.addOverlay(update);
                 rsdk.getWindow().render();
@@ -369,7 +457,7 @@ public class Runner {
                 Tasks.runJavaFXThread(() -> {
                     TextOverlay update = new TextOverlay("ERROR: Target does not exist. You will have to manually build jar.");
                     update.setTextFill(Color.RED);
-                    update.setX(-200);
+                    
                     update.setFont(conFont);
                     console.addOverlay(update);
                     rsdk.getWindow().render();
@@ -381,13 +469,13 @@ public class Runner {
                         System.out.println("Found file!");
                         Tasks.runJavaFXThread(() -> {
                             TextOverlay update = new TextOverlay("Target Jar: " + file.getAbsolutePath());
-                            update.setX(-200);
+                            
                             update.setFont(conFont);
                             console.addOverlay(update);
                             rsdk.getWindow().render();
 
                             update = new TextOverlay("Creating development scripts..." + file.getAbsolutePath());
-                            update.setX(-200);
+                            
                             update.setFont(conFont);
                             console.addOverlay(update);
                             rsdk.getWindow().render();
@@ -409,7 +497,7 @@ public class Runner {
     public void downloadJDKS(File environment) {
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Downloading Windows JDK...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -418,11 +506,10 @@ public class Runner {
         File jdk = new File(environment, "/jdk/");
         jdk.mkdir();
 
-        File windowsFile = new File(jdk, "amazon-corretto-17-x64-windows-jdk.zip");
-        windowsFile.delete();
+        File windowsFile = new File(jdk, "amazon-corretto-21-x64-windows-jdk.zip");
         if (!windowsFile.exists() || new File(windowsFile, "jdk/windows/").listFiles() != null && new File(windowsFile, "/jdk/windows/").listFiles().length > 0) {
             try (BufferedInputStream in = new BufferedInputStream(new URL("https://corretto.aws/downloads/latest/amazon-corretto-21-x64-windows-jdk.zip").openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(new File(jdk, "amazon-corretto-17-x64-windows-jdk.zip"))) {
+                 FileOutputStream fileOutputStream = new FileOutputStream(new File(jdk, windowsFile.getName()))) {
                 byte dataBuffer[] = new byte[1024];
                 int bytesRead;
                 while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
@@ -433,9 +520,10 @@ public class Runner {
             }
         }
 
+
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Unzipping Windows JDK...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -460,9 +548,11 @@ public class Runner {
             throw new RuntimeException(e);
         }
 
+        windowsFile.delete();
+
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Downloading Linux JDK...");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
@@ -476,7 +566,7 @@ public class Runner {
         if (!linuxFile.exists()) {
             System.out.println("Downloading...");
             try (BufferedInputStream in = new BufferedInputStream(new URL("https://corretto.aws/downloads/latest/amazon-corretto-21-x64-linux-jdk.deb").openStream());
-                 FileOutputStream fileOutputStream = new FileOutputStream(linuxFile)) {
+                 FileOutputStream fileOutputStream = new FileOutputStream(new File(jdk, linuxFile.getName()))) {
                 byte dataBuffer[] = new byte[1024];
                 int bytesRead;
                 while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
@@ -589,7 +679,7 @@ public class Runner {
         // Add Done button
         Tasks.runJavaFXThread(() -> {
             TextOverlay update = new TextOverlay("Finished runner!");
-            update.setX(-200);
+            
             update.setFont(conFont);
             console.addOverlay(update);
             rsdk.getWindow().render();
