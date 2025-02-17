@@ -4,4 +4,5 @@ module me.piitex.rsdk.rsdkgui {
     requires org.slf4j;
     requires org.apache.commons.io;
     requires plexus.archiver;
+    requires java.desktop;
 }
